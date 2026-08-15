@@ -1,18 +1,55 @@
-name: Build APK
-on: [push, workflow_dispatch]
+name: Build & Sign APK
+on:
+  push:
+    branches: [ main, master ]
+  workflow_dispatch:
+
 jobs:
   build:
+    name: Compiler et signer l'APK
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-java@v4
-        with: { java-version: '17', distribution: 'temurin' }
-      - uses: android-actions/setup-android@v3
-      - name: Setup Gradle Wrapper
+      - name: Récupérer le code
+        uses: actions/checkout@v4
+
+      - name: Configurer Java 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Configurer Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Préparer Gradle
         run: |
           chmod +x gradlew build.sh
           curl -sL "https://raw.githubusercontent.com/gradle/gradle/v8.5.0/gradle/wrapper/gradle-wrapper.jar" -o gradle/wrapper/gradle-wrapper.jar
-      - name: Compiler APK
-        run: ./build.sh release
-      - uses: actions/upload-artifact@v4
-        with: { name: Calculatrice-APK, path: app/build/outputs/apk/release/app-release-unsigned.apk }
+
+      - name: Compiler l'APK
+        run: ./build.sh build
+
+      - name: Générer la clé de signature
+        run: |
+          keytool -genkeypair -alias calculatrice -keyalg RSA -keysize 2048 \
+            -dname "CN=Calculatrice, OU=Messagerie, O=Perso, L=Angers, ST=PaysDeLaLoire, C=FR" \
+            -keypass 123 -storepass 123 \
+            -keystore release.keystore -validity 10000 -noprompt
+
+      - name: Signer l'APK
+        run: |
+          jarsigner -verbose -sigalg SHA256withRSA -digestalg SHA-256 \
+            -keystore release.keystore -storepass 123 -keypass 123 \
+            app/build/outputs/apk/release/app-release-unsigned.apk calculatrice
+
+      - name: Vérifier la signature
+        run: jarsigner -verify app/build/outputs/apk/release/app-release-unsigned.apk
+
+      - name: Renommer l'APK signé
+        run: mv app/build/outputs/apk/release/app-release-unsigned.apk Calculatrice-Signee.apk
+
+      - name: Télécharger l'APK signé
+        uses: actions/upload-artifact@v4
+        with:
+          name: Calculatrice-APK-Signee
+          path: Calculatrice-Signee.apk
