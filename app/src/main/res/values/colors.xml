@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="bg_buttons">#424242</color>
+    <color name="bg_numbers">#616161</color>
+    <color name="bg_operators">#FF9800</color>
+    <color name="text_white">#FFFFFF</color>
+    <color name="bg_display">#212121</color>
+    <color name="message_sent">#E3F2FD</color>
+    <color name="message_received">#F5F5F5</color>
+</resources>
