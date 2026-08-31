@@ -4,6 +4,9 @@ on:
     branches: [ "main" ]
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -20,47 +23,17 @@ jobs:
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
 
-      - name: Fix gradlew permission (if exists)
-        run: |
-          if [ -f gradlew ]; then
-            sed -i 's/\r$//' gradlew
-            chmod +x gradlew
-          fi
-          ls -la gradlew || echo "no gradlew - ok we build without it"
-
-      - name: Setup Gradle 8.4 (NO WRAPPER NEEDED)
+      - name: Setup Gradle 8.4 (sans wrapper)
         uses: gradle/gradle-build-action@v2
         with:
           gradle-version: 8.4
 
-      - name: Build Debug APK with Gradle directly
-        run: |
-          if [ -f gradlew ]; then
-            ./gradlew assembleDebug --no-daemon --stacktrace || gradle assembleDebug --no-daemon --stacktrace
-          else
-            gradle assembleDebug --no-daemon --stacktrace
-          fi
+      - name: Build Debug APK
+        run: gradle assembleDebug --no-daemon --stacktrace
 
-      - name: Upload APK
+      - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
           name: Glass-SMS-debug
           path: app/build/outputs/apk/debug/app-debug.apk
           retention-days: 14
-
-      - name: Create Release with APK
-        if: github.ref == 'refs/heads/main'
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: v1.0-${{ github.run_number }}
-          name: Glass SMS v1.0 Build ${{ github.run_number }} - Glass Transparent
-          body: |
-            APK Debug Glass SMS - Ultra légère fluide aérée
-            - Pavé numérique
-            - SMS/MMS
-            - Note vocale
-            - Contacts + Historique
-            - Style glass transparent arrondi
-          files: app/build/outputs/apk/debug/app-debug.apk
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
