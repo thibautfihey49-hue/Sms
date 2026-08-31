@@ -1,1 +1,5 @@
-<resources><color name="glass_primary">#6C63FF</color></resources>
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="glass_primary">#6C63FF</color>
+    <color name="glass_bg">#EDE7FF</color>
+</resources>
