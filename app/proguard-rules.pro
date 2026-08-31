@@ -1,0 +1,3 @@
+-keep class com.thibautfihey.sms.receiver.** { *; }
+-keep class com.thibautfihey.sms.service.** { *; }
+-keep class android.provider.Telephony$* { *; }
