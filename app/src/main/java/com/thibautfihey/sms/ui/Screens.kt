@@ -35,13 +35,13 @@ import java.io.File
 }
 data class ThreadPreview(val name:String, val last:String, val unread:Int)
 @Composable fun MessagesListScreenGlass(nav: NavController){
-    val list = listOf(ThreadPreview("Maman","Tu rentres?","2"), ThreadPreview("+33 6 12...","🎙️ Note vocale 0:24",0), ThreadPreview("Léa","MMS photo.jpg",1))
+    val list = listOf(ThreadPreview("Maman","Tu rentres?",2), ThreadPreview("+33 6 12...","🎙️ Note vocale 0:24",0), ThreadPreview("Léa","MMS photo.jpg",1))
     Column(Modifier.fillMaxSize().padding(16.dp)){
         Text("Messages", style=MaterialTheme.typography.headlineLarge); Spacer(Modifier.height(16.dp))
         LazyColumn(verticalArrangement=Arrangement.spacedBy(12.dp)){ items(list){ t -> 
             Card(Modifier.fillMaxWidth(), shape=RoundedCornerShape(24.dp), colors=CardDefaults.cardColors(containerColor=Color.White.copy(0.65f))) {
                 Column(Modifier.padding(16.dp)){
-                    Row(Modifier.fillMaxWidth(), Arrangement.SpaceBetween){ Column{ Text(t.name, style=MaterialTheme.typography.titleMedium); Text(t.last, color=Color.Gray) }; Badge{ if(t.unread!=0) Text(t.unread.toString()) } }
+                    Row(Modifier.fillMaxWidth(), Arrangement.SpaceBetween){ Column{ Text(t.name, style=MaterialTheme.typography.titleMedium); Text(t.last, color=Color.Gray) }; Badge{ Text(t.unread.toString()) } }
                     Spacer(Modifier.height(8.dp))
                     OutlinedButton(onClick={ try{ nav.navigate("chat/${t.name}") }catch(_:Exception){} }, shape=RoundedCornerShape(12.dp)){ Text("Ouvrir") }
                 }
